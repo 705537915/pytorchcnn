@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from skimage import io
 import matplotlib.pyplot as plt
@@ -6,7 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
 from torchvision.utils import make_grid
 from PIL import Image
-
+from Batchlabeling import batch
 
 class MyDataset(Dataset):
     # stpe1:初始化
@@ -38,7 +40,7 @@ def look(whichset):
     set = MyDataset(f'./data/{whichset}',
                     f'./data/{whichset}/{whichset}.txt',
                     transform=transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(),
-                                                  transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))]))
+                                                  ]))
 
     setloader = DataLoader(dataset=set,
                            batch_size=4,
@@ -62,34 +64,75 @@ def look(whichset):
 
 
 if __name__ == "__main__":
-    def picstandard():
-        with open(r'F:\AI\CNNtorch\data\test\test.txt') as f:
+    def picstandard(which):
+        with open(f'./data/{which}/{which}.txt') as f:
+            temp = []
             a = f.read().split('\n')
             a.pop()
             flag = False
             for i in a:
                 try:
-                    image = io.imread('data/test' + i[:-2])
+                    image = io.imread(f'data/{which}' + i[:-2])
+                    img = np.transpose(image, (2, 0, 1))
                 except:
                     flag = False
-                    print('无法加载此路径图片，地址为：' + 'data/test' + i[:-2])
-                image = np.transpose(image, (2, 0, 1))
-                if not len(image) == 3:  # 如果图片通道为4则打印出改图片路径
-                    flag == True
-                    print('data/test' + i[:-2])
+                    print('无法加载此路径图片，地址为：' + f'data/{which}' + i[:-2])
+                    temp.append(f'./data/{which}' + i[:-2])
+                if not len(img) == 3:  # 如果图片通道为4则打印出改图片路径
+                    flag = True
+                    print(f'data/{which}' + i[:-2])
+                    temp.append(f'./data/{which}' + i[:-2])
             if flag:
-                print('图片通道数有问题！\n问题图片路径：' + 'data/test' + i[:-2])
+                print('图片通道数有问题!')
             else:
                 print('数据集图片无问题')
+        with open('F:\AI\CNNTorch\data\problems.txt', 'a') as f:
+            f.seek(0)  # 指针定位到0
+            f.truncate()  # 清空 文件
+            for ii in temp:
+                f.writelines(ii)
+        print('问题已记录')
 
 
     # 数据集可视化
-
-    if input('输入1查看数据集\n否则将检测数据集图篇标准化:') == '1':
+    switch = input('输入1查看数据集\n输入2检测数据集图片标准化\n输入3列出现有问题:')
+    if switch  == '1':
+        batch('test')
+        batch('train')
         set = input('训练集输入1\n否则为测试集')
         ws = 'test'
         if set == '1':
             ws = 'train'
         look(ws)
+    elif switch == '2':
+        batch('test')
+        batch('train')
+        set = input('训练集输入1\n否则为测试集')
+        ws = 'test'
+        if set == '1':
+            ws = 'train'
+        picstandard(ws)
     else:
-        picstandard()
+        data = None
+        with open('F:\AI\CNNTorch\data\problems.txt','a') as f:
+            a = list(f.read().split())
+        if len(a) != 0:
+            for i in a:
+                print('问题如下：')
+                print(f'{i}')
+            if input('要处理输入1') == '1':
+                for i in a:
+                    os.remove(i)
+                    print(f'{i}已删除')
+                print(f'一共处理了{len(a)}张图片')
+                f.seek(0)  # 指针定位到0
+                f.truncate()  # 清空 文件
+                print('问题记录已经清空')
+                batch('test')
+                batch('train')
+                print('标签文件已经更新')
+            else:
+                print('未处理！')
+        else:
+            print('无问题记录！')
+

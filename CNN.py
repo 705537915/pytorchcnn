@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
-from torchvision.transforms import transforms
+from torchvision.transforms import transforms # 图像处理
 from DataLookAndStandard import MyDataset
 from torchvision.utils import make_grid
 import torch.nn as nn  # 神经网络
@@ -11,7 +11,7 @@ import os
 
 batches = 4
 classes = ['男', '女']
-PATH = './gender.pth'
+PATH = './genderdd.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # 数据集加载
@@ -77,6 +77,8 @@ def train(epochs, verify):
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
     correct = 0
     total = 0
+    showaccy = []
+    showlossy =[]
     for epoch in range(epochs):
         for i, data in enumerate(trainloader, 0):
             inputs, labels = data[0].to(device), data[1].to(device)
@@ -90,8 +92,22 @@ def train(epochs, verify):
             if i % verify == 0:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                showaccy.append(correct / total)
                 print('[epoch:%d, %5d] loss: %.3f  准确率:%.4f' % (epoch + 1, i + 1, loss.item(), correct / total))
+                showlossy.append(loss.item())
+    showaccx = [i for i in range(int(total / 4))]
+    plt.subplot(1, 2, 1)
+    plt.title("Training real time accuracy")
+    plt.xlabel('Batch number of data')
+    plt.ylabel('Precision')
+    plt.plot(showaccx, showaccy)
 
+    plt.subplot(1, 2, 2)
+    plt.title("Loss value change")
+    plt.xlabel('Batch number of data')
+    plt.ylabel('Precision')
+    plt.plot(showaccx, showlossy)
+    plt.show()
     torch.save(net.state_dict(), PATH)
     print('训练完毕')
 
@@ -132,10 +148,13 @@ def Verify():
 
 
 def main():
-    if os.path.exists('F:\AI\CNNtorch\gender.pth'):
+    from Batchlabeling import batch
+    batch('test')
+    batch('train')
+    if os.path.exists(f'F:\AI\CNNtorch\{PATH[1:]}'):
         net.load_state_dict(torch.load(PATH))
-    # train(5, 10)
-    # Verify()
+    train(10, 10)
+    Verify()
 
 
 if __name__ == "__main__":
