@@ -94,7 +94,7 @@ def train(epochs, verify):
                 showaccy.append(correct / total)
                 print('[epoch:%d, %5d] loss: %.3f  准确率:%.4f' % (epoch + 1, i + 1, loss.item(), correct / total))
                 showlossy.append(loss.item())
-    showaccx = [i for i in range(int(total / batches))]
+    showaccx = [i for i in range(int(len(showaccy)))]
     # 准确率直线
     plt.subplot(1, 2, 1)
     plt.title("Training real time accuracy")

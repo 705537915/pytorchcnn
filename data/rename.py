@@ -3,7 +3,7 @@ import os
 def file_rename():
     i = 0
     # 需要重命名的文件绝对路径
-    path = r"F:\AI\CNNtorch\data\train\man"
+    path = r"F:\AI\CNNtorch\data\train\woman"
     # 读取该文件夹下所有的文件
     filelist = os.listdir(path)
     # 遍历所有文件

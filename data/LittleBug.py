@@ -44,7 +44,7 @@ class PaChong:
 
 
 # 通过pn参数实现翻页，第一页为0，,间隔为20
-for i in range(220, 320, 20):
+for i in range(620, 720, 20):
     url = "https://image.baidu.com/search/flip?tn=baiduimage&ie=utf-8&word={0}&pn={1}&gsm=50&ct=&ic=0&lm=-1&width=0&height=0".format(
         word, i)
     Run = PaChong(word, i)
