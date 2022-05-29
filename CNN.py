@@ -10,7 +10,7 @@ import os
 
 batches = 8
 classes = ['男', '女']
-PATH = './classify.pth'
+PATH = './bsetgender.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # 数据集加载
