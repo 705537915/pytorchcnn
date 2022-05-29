@@ -10,7 +10,7 @@ import os
 
 batches = 8
 classes = ['男', '女']
-PATH = './bsetgender.pth'
+PATH = './classfiy.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # 数据集加载
@@ -18,8 +18,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 trainset = MyDataset('./data/train',
                      './data/train/train.txt',
                      transform=transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(),
-                                                   transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                                                        (0.2023, 0.1994, 0.2010))
+                                                   transforms.Normalize((0.4914, 0.4822, 0.4465),                                                                     (0.2023, 0.1994, 0.2010))
                                                    ]))
 testset = MyDataset('./data/test',
                     './data/test/test.txt',
@@ -137,7 +136,7 @@ def Verify():
                 if (label[i] == predicted[i]) and label[i] == 1:
                     corrects[1] += 1
             if fflag:  # 图片显示模块
-                print('标签为:', [labels[i].item() for i in labels])
+                print('标签为:', [classes[labels[i].item()] for i in labels])
                 print('预测:', [classes[jj] for jj in predicted])
                 grid = make_grid(images.to('cpu'))
                 plt.imshow(grid.numpy().transpose(1, 2, 0))
@@ -154,7 +153,7 @@ def main():
     batch('train')
     if os.path.exists(f'F:\AI\CNNtorch\{PATH[1:]}'):
         net.load_state_dict(torch.load(PATH))
-    # train(100, 10)
+    train(20, 10)
     Verify()
 
 

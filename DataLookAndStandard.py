@@ -71,13 +71,13 @@ if __name__ == "__main__":
             flag = False
             for i in a:
                 try:
-                    image = io.imread(f'data/{which}' + i[:-2])
-                    img = np.transpose(image, (2, 0, 1))
+                    image = Image.open(f'data/{which}' + i[:-2]).convert('RGB')
+                    image = np.transpose(image, (2, 0, 1))
                 except:
-                    flag = False
+                    flag = True
                     print('无法加载此路径图片，地址为：' + f'data/{which}' + i[:-2])
                     temp.append(f'./data/{which}' + i[:-2])
-                if not len(img) == 3:  # 如果图片通道为4则打印出改图片路径
+                if not len(image) == 3:  # 如果图片通道为4则打印出改图片路径
                     flag = True
                     print(f'data/{which}' + i[:-2])
                     temp.append(f'./data/{which}' + i[:-2])
@@ -113,19 +113,20 @@ if __name__ == "__main__":
         picstandard(ws)
     else:
         data = None
-        with open('F:\AI\CNNTorch\data\problems.txt','a') as f:
+        with open('F:\AI\CNNTorch\data\problems.txt') as f:
             a = list(f.read().split())
         if len(a) != 0:
+            print('问题如下：')
             for i in a:
-                print('问题如下：')
                 print(f'{i}')
             if input('要处理输入1') == '1':
                 for i in a:
                     os.remove(i)
                     print(f'{i}已删除')
                 print(f'一共处理了{len(a)}张图片')
-                f.seek(0)  # 指针定位到0
-                f.truncate()  # 清空 文件
+                with open('F:\AI\CNNTorch\data\problems.txt','a') as up:
+                    up.seek(0)  # 指针定位到0
+                    up.truncate()  # 清空 文件
                 print('问题记录已经清空')
                 batch('test')
                 batch('train')
