@@ -180,4 +180,4 @@ PIL （pillow）：是python图片处理的基础库，pillow库中的image对�
 
 建议python版本python=3.7
 
-基础训练集已打包：天翼云盘：
+基础训练集已打包：天翼云盘：https://cloud.189.cn/t/Vv6RN3RrYb22 (访问码:3ngp)
