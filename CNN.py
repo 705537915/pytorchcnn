@@ -1,17 +1,16 @@
 import torch
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt # 可视化
 from torch.utils.data import Dataset
 from torchvision.transforms import transforms # 图像处理
-from DataLookAndStandard import MyDataset
+from DataLookAndStandard import MyDataset # 重写Dataset类
 from torchvision.utils import make_grid
 import torch.nn as nn  # 神经网络
 import torch.optim as optim  # 优化器
-import numpy as np
 import os
 
-batches = 4
+batches = 8
 classes = ['男', '女']
-PATH = './genderdd.pth'
+PATH = './classify.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # 数据集加载
@@ -36,7 +35,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.features = nn.Sequential(  # 特征提取
             nn.Conv2d(3, 48, kernel_size=11, stride=4, padding=2),  # input[3, 224, 224]  output[48, 55, 55] 自动舍去小数点后
-            nn.ReLU(inplace=True),  # inplace 可以载入更大模型
+            nn.ReLU(inplace=True),  # inplace 原地操作
             nn.MaxPool2d(kernel_size=3, stride=2),  # output[48, 27, 27] kernel_num为原论文一半
             nn.Conv2d(48, 128, kernel_size=5, padding=2),  # output[128, 27, 27]
             nn.ReLU(inplace=True),
@@ -51,7 +50,7 @@ class Net(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.5),
-            # 全链接
+            # 全连接
             nn.Linear(128 * 6 * 6, 2048),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5),
@@ -73,8 +72,8 @@ net.to(device)
 
 
 def train(epochs, verify):
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    criterion = nn.CrossEntropyLoss() # 损失函数
+    optimizer = optim.SGD(net.parameters(), lr=0.001) # 优化器
     correct = 0
     total = 0
     showaccy = []
@@ -82,26 +81,28 @@ def train(epochs, verify):
     for epoch in range(epochs):
         for i, data in enumerate(trainloader, 0):
             inputs, labels = data[0].to(device), data[1].to(device)
-            optimizer.zero_grad()
             outputs = net(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-            _, predicted = torch.max(outputs.data, 1)
+            # 反向传播
+            optimizer.zero_grad() # 清除过往梯度
+            loss = criterion(outputs, labels) # 损失值计算
+            loss.backward() # 反向传播，计算当前梯度
+            optimizer.step() # 根据梯度更新网络参数
             # 当前状态
+            _, predicted = torch.max(outputs.data, 1)
             if i % verify == 0:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
                 showaccy.append(correct / total)
                 print('[epoch:%d, %5d] loss: %.3f  准确率:%.4f' % (epoch + 1, i + 1, loss.item(), correct / total))
                 showlossy.append(loss.item())
-    showaccx = [i for i in range(int(total / 4))]
+    showaccx = [i for i in range(int(total / batches))]
+    # 准确率直线
     plt.subplot(1, 2, 1)
     plt.title("Training real time accuracy")
     plt.xlabel('Batch number of data')
     plt.ylabel('Precision')
     plt.plot(showaccx, showaccy)
-
+    # 损失函数直线
     plt.subplot(1, 2, 2)
     plt.title("Loss value change")
     plt.xlabel('Batch number of data')
@@ -153,7 +154,7 @@ def main():
     batch('train')
     if os.path.exists(f'F:\AI\CNNtorch\{PATH[1:]}'):
         net.load_state_dict(torch.load(PATH))
-    train(10, 10)
+    # train(100, 10)
     Verify()
 
 

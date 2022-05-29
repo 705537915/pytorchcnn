@@ -1,14 +1,13 @@
 import os
 
 import numpy as np
-from skimage import io
 import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
-from torchvision.utils import make_grid
-from PIL import Image
-from Batchlabeling import batch
+from torchvision.utils import make_grid # 图片可视化使用
+from PIL import Image # 图片读取
+from Batchlabeling import batch # 自制打标签模块
 
 class MyDataset(Dataset):
     # stpe1:初始化

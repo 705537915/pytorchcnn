@@ -14,6 +14,8 @@
 
 版本管理工具：git
 
+使用gpu训练
+
 ### 数据集
 
 #### 数据集加载
@@ -32,15 +34,31 @@
 
 数据集预处理使用torchvision的transforms工具包
 
-对数据做了 裁剪， 张量化，以及归一化处理
+对数据做了 裁剪， 张量化，以及
+
+##### 归一化处理( 图片张量值在（-1，1）之间)
+
+```
+torchvision.transforms.ToTensor()，其作用是将数据归一化到[0,1]（是将数据除以255），会把HWC会变成C *H *W（拓展：格式为(h,w,c)，像素顺序为RGB）
+transforms.Normalize((mean1,mean2,mean3),(std1,std2,std3))
+output = (input - mean) / std
+```
 
 ### 网络搭建
+
+ouput计算公式![image-20220529074505767](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529074505767.png)
+
+
 
 使用的是sequential 方法打包网络的特征提取层以及全连接层
 
 网络是复现Hinton和他的学生Alex Krizhevsky设计的Alexnet
 
+
+
 #### Alexnet
+
+![image-20220529072316462](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529072316462.png)
 
 2012年imagene冠军
 
@@ -51,6 +69,8 @@
 使用了Dropout层
 
 整个网络由**5层卷积层**和**3层全连接层**构成
+
+
 
 
 
@@ -98,11 +118,33 @@ torchvision:处理图像视频，包含一些常用的数据集、模型、转�
 
 transforms：Pytorch中的图像预处理包
 
+PIL （pillow）：是python图片处理的基础库，pillow库中的image对象能够与Numpy ndarry数组实现相互转换
+
+#### 优化器，损失函数
+
+##### 优化器
+
+![image-20220529080502552](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529080502552.png)
+
+当我们使用SGD会把数据拆分后再分批不断放入 NN 中计算. 每次使用批数据, 虽然不能反映整体数据的情况, 不过却很大程度上加速了 NN 的训练过程, 而且也不会丢失太多准确率.
+
+###### lr
+
+学习率
+
+###### momentum
+
+为了抑制SGD的震荡，梯度下降过程可以加入惯性。下坡的时候，如果发现是陡坡，那就利用惯性跑的快一些。
+
+##### 损失函数
+
+![image-20220529081916733](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529081916733.png)
+
 
 
 ## 结果展示
 
-![image-20220528234843308](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220528234843308.png)
+训练结果：
 
 ![image-20220528233048993](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220528233048993.png)
 
@@ -110,13 +152,24 @@ transforms：Pytorch中的图像预处理包
 
 ![image-20220528212239675](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220528212239675.png)
 
+![image-20220529082109790](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529082109790.png)
 
 
 
+![image-20220529082136195](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529082136195.png)
 
 
 
 ## 遇到的问题
 
+数据标准化时遇到的问题
+
 ![image-20220528224101881](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220528224101881.png)
 
+处理办法，第一次运行记录问题
+
+![image-20220529072703660](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529072703660.png)
+
+第二次运行处理问题
+
+![image-20220529072720057](D:/OneDrive - vhdsr/Typroa/大一下/2/image-20220529072720057.png)
