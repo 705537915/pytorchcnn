@@ -176,10 +176,8 @@ PIL （pillow）：是python图片处理的基础库，pillow库中的image对�
 
 ## 其他设备的实现
 
-环境已经打包：天翼云盘：
+使用anaconda配置pytorch虚拟环境
 
-环境解压后放至anaconda 的env文件夹
+建议python版本python=3.7
 
-样例：F:\pyenvAnaconda\envs
-
-基础训练已打包：天翼云盘：
+基础训练集已打包：天翼云盘：
