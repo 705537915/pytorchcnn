@@ -8,9 +8,10 @@ import torch.nn as nn  # 神经网络
 import torch.optim as optim  # 优化器
 import os
 
+fflag = False # True为验证时观看图片
 batches = 8
 classes = ['男', '女']
-PATH = './classfiy.pth'
+PATH = './classfiybaidu.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # 数据集加载
@@ -18,13 +19,15 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 trainset = MyDataset('./data/train',
                      './data/train/train.txt',
                      transform=transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(),
-                                                   transforms.Normalize((0.4914, 0.4822, 0.4465),                                                                     (0.2023, 0.1994, 0.2010))
+                                                   transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
                                                    ]))
 testset = MyDataset('./data/test',
                     './data/test/test.txt',
-                    transform=transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()]))
+                    transform=transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(),
+                                                  transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
+                                                  ]))
 
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batches, shuffle=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batches,shuffle=True)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batches)
 
 
@@ -48,11 +51,11 @@ class Net(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2),  # output[128, 6, 6]
         )
         self.classifier = nn.Sequential(
-            nn.Dropout(p=0.5),
+            nn.Dropout(p=0.2),
             # 全连接
             nn.Linear(128 * 6 * 6, 2048),
             nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5),
+            nn.Dropout(p=0.25),
             nn.Linear(2048, 2048),
             nn.ReLU(inplace=True),
             nn.Linear(2048, 2),
@@ -72,7 +75,7 @@ net.to(device)
 
 def train(epochs, verify):
     criterion = nn.CrossEntropyLoss() # 损失函数
-    optimizer = optim.SGD(net.parameters(), lr=0.001) # 优化器
+    optimizer = optim.SGD(net.parameters(), lr=0.005,momentum=0.9) # 优化器
     correct = 0
     total = 0
     showaccy = []
@@ -92,7 +95,7 @@ def train(epochs, verify):
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
                 showaccy.append(correct / total)
-                print('[epoch:%d, %5d] loss: %.3f  准确率:%.4f' % (epoch + 1, i + 1, loss.item(), correct / total))
+                print('[epoch:%d, %5d] loss: %f  准确率:%.4f' % (epoch + 1, i + 1, loss.item(), correct / total))
                 showlossy.append(loss.item())
     showaccx = [i for i in range(int(len(showaccy)))]
     # 准确率直线
@@ -114,8 +117,7 @@ def train(epochs, verify):
 
 #  验证集
 def Verify():
-    fflag = False
-    if input('要查看图片吗\n要输入1否则无图片反馈') == '1': fflag = True
+    # if input('要查看图片吗\n要输入1否则无图片反馈') == '1': fflag = True
     print("验证进行中。。。")
     totals = classes.copy()
     corrects = classes.copy()
@@ -143,7 +145,9 @@ def Verify():
                 plt.show()
                 plt.axis('off')
                 plt.ioff()
+    if totals[0] != 0:
         print('男人识别准确率:', corrects[0] / totals[0])
+    if totals[1] != 0:
         print('女人识别准确率:', corrects[1] / totals[1])
 
 
@@ -151,9 +155,10 @@ def main():
     from Batchlabeling import batch
     batch('test')
     batch('train')
+
     if os.path.exists(f'F:\AI\CNNtorch\{PATH[1:]}'):
         net.load_state_dict(torch.load(PATH))
-    train(20, 10)
+    # train(10, 50)
     Verify()
 
 
